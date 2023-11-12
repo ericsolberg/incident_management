@@ -1,0 +1,153 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "npm-install",
+      "type": "process",
+      "command": "npm",
+      "args": [
+        "install"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "BuildMDK",
+      "type": "process",
+      "command": "npx",
+      "args": [
+        "mdk",
+        "build",
+        "--target",
+        "module",
+        "--ui5",
+        "--recursive"
+      ],
+      "dependsOn": [
+        "npm-install"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "dev-project",
+      "type": "shell",
+      "command": "basctl --command PT.runner.generateLaunchPage",
+      "dependsOn": [
+        "BuildMDK"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "dpt.ptdeploy",
+      "label": "Deploy incident_management",
+      "taskType": "Deploy"
+    },
+    {
+      "type": "dpt.ptdeploy",
+      "label": "Enable Discovery and Deploy incident_management",
+      "taskType": "Deploy",
+      "enableDiscovery": "true"
+    },
+    {
+      "label": "PreLaunchTask for Run incident_management-1",
+      "type": "process",
+      "command": "basctl",
+      "args": [
+        "--command",
+        "PT.runner.generateLaunchPage"
+      ],
+      "dependsOn": [
+        "BuildMDK"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "npm",
+      "label": "test",
+      "script": "test"
+    },
+    {
+      "label": "install-app-router",
+      "type": "shell",
+      "command": "if [ ! -d node_modules ]; then npm i; fi",
+      "options": {
+        "cwd": "${workspaceFolder}/local-router"
+      }
+    },
+    {
+      "label": "start-app-router",
+      "type": "shell",
+      "command": "eval $(cat ../env/.envXsuaa)  npm start",
+      "options": {
+        "cwd": "${workspaceFolder}/local-router"
+      },
+      "dependsOn": [
+        "install-app-router"
+      ],
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "severity": "info",
+          "pattern": [
+            {
+              "regexp": ".*Application router is listening on port.*",
+              "file": 0,
+              "location": 0,
+              "message": 0
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": ".",
+            "endsPattern": ".*Application router is listening on port.*"
+          }
+        }
+      ]
+    },
+    {
+      "label": "stop-app-router",
+      "type": "shell",
+      "command": "command -v lwctl >/dev/null 2>&1 && lwctl -c basic-tools kill $(lwctl -c basic-tools ps aux | grep -vE 'grep|bash' | grep 'approuter' | awk '{print $2}') || kill $(ps aux | grep -vE 'grep|bash' | grep 'approuter' | awk '{print $2}')",
+      "presentation": {
+        "echo": true,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "update-xsuaa-service",
+      "type": "shell",
+      "command": "basctl --command PT.runner.updateXsuaaService --param ${workspaceFolder}",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "PreLaunchTask for Run with Support Role",
+      "type": "process",
+      "command": "basctl",
+      "args": [
+        "--command",
+        "PT.runner.generateLaunchPage"
+      ],
+      "dependsOn": [
+        "BuildMDK",
+        "start-app-router",
+        "update-xsuaa-service"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}

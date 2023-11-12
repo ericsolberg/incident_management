@@ -1,0 +1,7 @@
+name;descr;code;criticality
+;assigned;A;2
+;in_process;I;2
+;on_hold;H;3
+;resolved;R;2
+;new;N;3
+;closed;C;4

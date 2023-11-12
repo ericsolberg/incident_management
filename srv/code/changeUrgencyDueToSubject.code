@@ -1,0 +1,13 @@
+{
+    "version": "2.0",
+    "codes": [],
+    "configuration": {
+        "phase": "before",
+        "events": [
+            "CREATE",
+            "UPDATE"
+        ],
+        "entity": "ProcessorService.Incidents"
+    },
+    "hash": "56593b3adb41538571b77b3a788e7e2a11b95082a07454a3e0b8152d143854433106efe10cf260cf3e6c3536f4e7fde7dc887298078e779b23d38d0220ed9897"
+}
